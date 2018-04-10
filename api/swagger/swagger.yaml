@@ -1,0 +1,88 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Loan Bazar APIs
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /mqMsg:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: mqMsgHandler
+    get:
+      description: Returns 'MSG' to the caller
+      # used as the method name of the controller
+      operationId: readMsg
+      parameters:
+        - name: name
+          in: query
+          description: Reads out Hellor for user
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/HelloWorldResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Posts a MQ Message to Queue
+      operationId: postMQMsg
+      parameters:
+      - in: body
+        name: mqMsg
+        description: MQ Message to publish
+        schema:
+          $ref: '#/definitions/MQMsg'
+      responses:
+        201:
+          description: Msg submitted
+        400:
+          description: invalid input, object invalid
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  HelloWorldResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  MQMsg:
+    type: object
+    required:
+    - requestorId
+    - date
+    - msgString
+    properties:
+      requestorId:
+        type: string
+      msgString:
+        type: string
+      date:
+        type: string
+        format: int32
